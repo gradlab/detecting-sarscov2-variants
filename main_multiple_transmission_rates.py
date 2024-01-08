@@ -5,13 +5,12 @@
 import numpy as np
 import pandas as pd
 from multiprocessing import Process
-import pickle
-
-
 
 from simulations_functions import set_starting_compartments, loop_over_scenarios
 
 import variants_parameters_more_transmissible as variant_pars
+
+
 
 if __name__=='__main__':
     
@@ -47,7 +46,7 @@ if __name__=='__main__':
         b2 = b_values[b_iter]
         b = [0.2, b2]
         
-        for seq_iter in np.arange(2,len(seqrates)):
+        for seq_iter in np.arange(len(seqrates)):
             
             seq_rate = seqrates[seq_iter]
 

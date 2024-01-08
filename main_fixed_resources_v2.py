@@ -5,10 +5,6 @@
 import numpy as np
 import pandas as pd
 from multiprocessing import Process
-import pickle
-
-import copy
-import os
 
 
 from simulations_functions import set_starting_compartments, loop_over_scenarios_fixedresources

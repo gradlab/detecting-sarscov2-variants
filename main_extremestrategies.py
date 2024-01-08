@@ -83,7 +83,7 @@ if __name__=='__main__':
             compartments_inits = (S, Sq, E, Iu, Itq, Itnq, Igq, Ignq, Ru, Rt, Rg, S_self, S_x, S_both)
 
             # params with each of the test rates
-            params1 = (variant_pars.fb_kmatrix, variant_pars.b, variant_pars.D, variant_pars.L, variant_pars.Q, p_ta, test_rates, variant_pars.p_gs, variant_pars.p_TP, variant_pars.p_FP, variant_pars.p_q, variant_pars.theta, variant_pars.w_self, variant_pars.w_x, variant_pars.a_self, variant_pars.a_cross, n_variants, n_locations)
+            params1 = (variant_pars.fb_kmatrix, variant_pars.b, variant_pars.D, variant_pars.L, variant_pars.Q, p_ta, test_rates, p_gs, variant_pars.p_TP, variant_pars.p_FP, variant_pars.p_q, variant_pars.theta, variant_pars.w_self, variant_pars.w_x, variant_pars.a_self, variant_pars.a_cross, n_variants, n_locations)
             
 
             

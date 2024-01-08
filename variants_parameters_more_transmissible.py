@@ -3,6 +3,7 @@ import pandas as pd
 
 from simulations_functions import make_k_matrix_from_M
 
+
 # ------ parameters that require reading data
 
 data_dir = './data'
@@ -15,8 +16,17 @@ borough_pop = pd.read_csv(data_dir+'/borough_population.csv')
 boroughs_order = ['Bronx', 'Brooklyn', 'Manhattan', 'Queens', 'Staten']
 
 
-# mobility data
-fb_mmatrix = pd.read_csv(data_dir+'/mmatrix_all_average_n_crisis.csv')
+# mobility data - average pairwise flows from FB data for good
+# (all boroughs plus an other category)
+# if unavailable, generate random data:
+try:
+	fb_mmatrix = pd.read_csv(data_dir+'/mmatrix_all_average_n_crisis.csv')
+except FileNotFoundError:
+	fb_mmatrix = pd.DataFrame(np.random.randint(low=10, high=100, size=(len(boroughs_order)+1, len(boroughs_order)+1)),
+                           columns = boroughs_order+['other'],
+                           index = boroughs_order+['other']).reset_index()
+    
+
 fb_mmatrix_scaled = fb_mmatrix.iloc[:,1:].values/fb_mmatrix.iloc[:,1:].sum(axis=1)[:,None]
 # re-scale to the pop size
 fb_mmatrix_scaled = fb_mmatrix_scaled[:-1, :-1] * borough_pop.pop_2020_estimate.values[:,None]
@@ -36,7 +46,6 @@ p_TP = 0.999  # true postive rate
 p_FP = 1-p_TP
 theta = 0.6  # infectiousness of individuals in quarantine reduced to theta*infectiousness
 Q=5  # time in quarantine without symptoms
-
 
 
 # ----- variant-specific parameters
