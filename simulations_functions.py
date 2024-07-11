@@ -167,7 +167,8 @@ def seir_multiple_variants_NUMBA(compartments_inits, params ):
     dn_sq_s = np.zeros(shape=n_locations)
     for z in np.arange(n_locations):
         # check
-        assert np.sum(p_leaving_S[:,z])<=1
+        assert np.sum(p_leaving_S[:,z])<=1        
+        
         
         # store the number of people leaving S for the E's, moving to Sq, and staying in a given place
         fool = np.random.multinomial(n=int(S[z]), 

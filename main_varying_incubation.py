@@ -33,7 +33,7 @@ if __name__=='__main__':
     testrates = pd.read_csv(data_dir+'/nyc_testrates.csv')
     
     
-    contacts_multipliers = [0.5, 1, 1.5]
+    latent_durations = [3, 5, 7]
     
     # sequencing rates 
     p_gs = np.array([0.1]*5)
@@ -43,12 +43,14 @@ if __name__=='__main__':
     # ---------- Loop over beta
     # ------------------------------------------
     
-    for c_iter in np.arange(len(contacts_multipliers)):
+    for l_iter in np.arange(len(latent_durations)):
         
-        c_multiplier = contacts_multipliers[c_iter]
+        l_val = latent_durations[l_iter]
+
+        L = [5,l_val]  # latent period
 
         # save in a separate folder for each seq rate
-        out_foler_preamble = 'sensitivity_analysis_varying_contacts/cvalue_'+str(c_iter)+'/'
+        out_foler_preamble = 'sensitivity_analysis_varying_incubation/lvalue_'+str(l_iter)+'/'
         # set the folder names
         #out_folder1 = out_foler_preamble+'results_statusquo/'
         out_folder2 = out_foler_preamble+'results_density/'
@@ -85,8 +87,7 @@ if __name__=='__main__':
         intro_times = [0, 50, 80, 100, 120, 150]
 
 		# params with each of the test rates
-        #params1 = (variant_pars.fb_kmatrix*c_multiplier, b, variant_pars.D, variant_pars.L, variant_pars.Q, test_rates, test_rates, p_gs, variant_pars.p_TP, variant_pars.p_FP, variant_pars.p_q, variant_pars.theta, variant_pars.w_self, variant_pars.w_x, variant_pars.a_self, variant_pars.a_cross, n_variants, n_locations)
-        params2 = (variant_pars.fb_kmatrix*c_multiplier, variant_pars.b, variant_pars.D, variant_pars.L, variant_pars.Q, test_rates_density_avg, test_rates_density_avg, p_gs, variant_pars.p_TP, variant_pars.p_FP, variant_pars.p_q, variant_pars.theta, variant_pars.w_self, variant_pars.w_x, variant_pars.a_self, variant_pars.a_cross, n_variants, n_locations)
+        params2 = (variant_pars.fb_kmatrix, variant_pars.b, variant_pars.D, L, variant_pars.Q, test_rates_density_avg, test_rates_density_avg, p_gs, variant_pars.p_TP, variant_pars.p_FP, variant_pars.p_q, variant_pars.theta, variant_pars.w_self, variant_pars.w_x, variant_pars.a_self, variant_pars.a_cross, n_variants, n_locations)
         
         
         """
@@ -123,10 +124,10 @@ if __name__=='__main__':
 
 		### then the density based strategy
         
-       # loop_over_scenarios(variant_pars.boroughs_order, intro_times, 
-       #                                        out_folder2, looping_params2, 
-       #                                        None, False)
-
+        #loop_over_scenarios(variant_pars.boroughs_order, intro_times, 
+        #                                       out_folder2, looping_params2, 
+        #                                       None, False)
+        
         p2 = Process(target=loop_over_scenarios, args=(variant_pars.boroughs_order, intro_times, 
 			                                            out_folder2, looping_params2, 
 			                                            None, False))
@@ -146,6 +147,8 @@ if __name__=='__main__':
 		"""
 
 
+        
+        
 
 
 

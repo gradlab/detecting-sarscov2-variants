@@ -14,30 +14,33 @@ import seaborn as sns
 
 
 # set location of individual files
-out_folder_preamble = 'sensitivity_analysis_varying_contacts/'
+out_folder_preamble = 'sensitivity_analysis_varying_incubation/'
 # plot folder
-plot_folder = 'sensitivity_analysis_varying_contacts/figures/'
+plot_folder = 'sensitivity_analysis_varying_incubation/figures/'
 
 # set the dimensions of the individual data files, based on len of parameter values
-contacts_multipliers = [0.5, 1, 1.5]
+latent_durations = [3, 5, 7]
 intro_locations = ['Bronx', 'Brooklyn', 'Manhattan', 'Queens', 'Staten']
 intro_times = [0, 50, 80, 100, 120, 150]
 
-n_contact_multipliers= len(contacts_multipliers)
+n_latent = len(latent_durations)
 n_variants = 2
 n_iter = 100
 
 
 # set the outputs
-e_cumulative_all = np.zeros(shape=( n_contact_multipliers, len(intro_locations), len(intro_times),
+e_cumulative_all = np.zeros(shape=( n_latent, len(intro_locations), len(intro_times),
                                    n_variants, len(intro_locations), n_iter) )
-t_first_sequenced_all = np.zeros(shape=( n_contact_multipliers, len(intro_locations), len(intro_times),
+t_first_sequenced_all = np.zeros(shape=( n_latent, len(intro_locations), len(intro_times),
                                    n_variants, n_iter) )
 
 
-for cc, c_multiplier in enumerate(contacts_multipliers):
-    
-    out_folder = out_folder_preamble+'cvalue_'+str(cc)+'/results_density/'
+for l_iter in np.arange(len(latent_durations)):
+
+    l_val = latent_durations[l_iter]
+    L = [5,l_val]  # latent period
+
+    out_folder = out_folder_preamble+'lvalue_'+str(l_iter)+'/results_density/'
     
     # time to detection
     t_first_sequenced_temp = np.load(out_folder+'t_first_sequenced_all.npy')
@@ -67,8 +70,8 @@ for cc, c_multiplier in enumerate(contacts_multipliers):
     e_temp = e_cumulative_temp+e_re_cumulative_temp
     
 
-    e_cumulative_all[cc,:,:,:,:,:] = e_temp
-    t_first_sequenced_all[cc,:,:,:,:] = t_first_sequenced_temp
+    e_cumulative_all[l_iter,:,:,:,:,:] = e_temp
+    t_first_sequenced_all[l_iter,:,:,:,:] = t_first_sequenced_temp
     
 
 # save
@@ -126,9 +129,11 @@ tt=0
 # flatten detection time data for swarmplot 
 use_data = pd.DataFrame()
 
-for cc, c_multiplier in enumerate(contacts_multipliers):
-    df_temp = pd.DataFrame({'detection time' : t_first_sequenced_all[cc,:,tt,1,:].flatten()})
-    df_temp['c_val'] = str(c_multiplier)
+
+for l_iter in np.arange(len(latent_durations)):
+    l_val = latent_durations[l_iter]    
+    df_temp = pd.DataFrame({'detection time' : t_first_sequenced_all[l_iter,:,tt,1,:].flatten()})
+    df_temp['l_val'] = str(l_val)
     
     use_data = use_data.append(df_temp)
 
@@ -138,8 +143,8 @@ use_data.reset_index(inplace=True, drop=True)
 
 fig, axs = plt.subplots(1,1, figsize=(14,10))
 
-sns.swarmplot(x='c_val', y='detection time', data=use_data, 
-                hue='c_val', alpha=0.5, s=6,
+sns.swarmplot(x='l_val', y='detection time', data=use_data, 
+                hue='l_val', alpha=0.5, s=6,
                 ax=axs, 
                 #legend=False, 
                 palette=[colors[5], colors[0], colors[2]],
@@ -148,7 +153,7 @@ sns.swarmplot(x='c_val', y='detection time', data=use_data,
 
 sns.boxplot(data=use_data,
             y='detection time',
-            x='c_val',
+            x='l_val',
             color = 'white',
             width = 0.5,
             ax=axs,
@@ -167,9 +172,9 @@ for i,artist in enumerate(axs.artists):
         line.set_mfc(boxlinecolor)
         line.set_mec(boxlinecolor)
 
-axs.set_xlabel('Average number of contacts', fontsize=20)
+axs.set_xlabel('Latent period of new variant \n(days)', fontsize=20)
 axs.set_ylabel('Detection time \n (days)', fontsize=20)
-axs.set_xticklabels(['2', '4', '6'])
+axs.set_xticklabels(['3', '5', '7'])
 
 axs.tick_params(axis='x', which='major', labelsize=20, width=0, length=0)
 axs.tick_params(axis='y', which='major', labelsize=20, width=3, length=5)
@@ -186,7 +191,7 @@ axs.spines.right.set_visible(False)
 axs.spines.left.set_linewidth(3)
 axs.spines.bottom.set_linewidth(3)
 
-plt.savefig(plot_folder+'boxplot-detection-time_compare-c-vals_intro-time-'+str(tt)+'.pdf', dpi=300)
+plt.savefig(plot_folder+'boxplot-detection-time_compare-l-vals_intro-time-'+str(tt)+'.pdf', dpi=300)
     
 
 # --- boxplot 2: burden
@@ -196,9 +201,11 @@ plt.savefig(plot_folder+'boxplot-detection-time_compare-c-vals_intro-time-'+str(
 # flatten detection time data for swarmplot 
 use_data = pd.DataFrame()
 
-for cc, c_multiplier in enumerate(contacts_multipliers):
-    df_temp = pd.DataFrame({'cumulative infections' : np.sum(e_cumulative_all[cc,:,tt,1,:,:], axis=1).flatten()})
-    df_temp['c_val'] = str(c_multiplier)
+
+for l_iter in np.arange(len(latent_durations)):
+    l_val = latent_durations[l_iter]
+    df_temp = pd.DataFrame({'cumulative infections' : np.sum(e_cumulative_all[l_iter,:,tt,1,:,:], axis=1).flatten()})
+    df_temp['l_val'] = str(l_val)
     
     use_data = use_data.append(df_temp)
 
@@ -208,8 +215,8 @@ use_data.reset_index(inplace=True, drop=True)
 
 fig, axs = plt.subplots(1,1, figsize=(14,10))
 
-sns.swarmplot(x='c_val', y='cumulative infections', data=use_data, 
-                hue='c_val', alpha=0.5, s=6,
+sns.swarmplot(x='l_val', y='cumulative infections', data=use_data, 
+                hue='l_val', alpha=0.5, s=6,
                 ax=axs, 
                 #legend=False, 
                 palette=[colors[5], colors[0], colors[2]],
@@ -218,7 +225,7 @@ sns.swarmplot(x='c_val', y='cumulative infections', data=use_data,
 
 sns.boxplot(data=use_data,
             y='cumulative infections',
-            x='c_val',
+            x='l_val',
             color = 'white',
             width = 0.5,
             ax=axs,
@@ -237,9 +244,9 @@ for i,artist in enumerate(axs.artists):
         line.set_mfc(boxlinecolor)
         line.set_mec(boxlinecolor)
 
-axs.set_xlabel('Average number of contacts', fontsize=20)
+axs.set_xlabel('Latent period of new variant \n(days)', fontsize=20)
 axs.set_ylabel('Cumulative infections', fontsize=20)
-axs.set_xticklabels(['2', '4', '6'])
+axs.set_xticklabels(['3', '5', '7'])
 
 axs.tick_params(axis='x', which='major', labelsize=20, width=0, length=0)
 axs.tick_params(axis='y', which='major', labelsize=20, width=3, length=5)
@@ -256,6 +263,6 @@ axs.spines.right.set_visible(False)
 axs.spines.left.set_linewidth(3)
 axs.spines.bottom.set_linewidth(3)
 
-plt.savefig(plot_folder+'boxplot-cumulative-infections_compare-c-vals_intro-time-'+str(tt)+'.pdf', dpi=300)
+plt.savefig(plot_folder+'boxplot-cumulative-infections_compare-l-vals_intro-time-'+str(tt)+'.pdf', dpi=300)
 
 
